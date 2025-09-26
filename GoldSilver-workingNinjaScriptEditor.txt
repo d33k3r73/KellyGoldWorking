@@ -136,7 +136,8 @@ namespace NinjaTrader.NinjaScript.Strategies
                 IsAutoScale = false;
                 IsOverlay = true;
 				
-//                AddPlot(new Stroke(Brushes.Transparent, 2), PlotStyle.Line, "InvisiblePlot");
+                AddPlot(new Stroke(Brushes.Orange, 2), PlotStyle.Line, "ProfitTarget");
+                AddPlot(new Stroke(Brushes.Red, 2), PlotStyle.Line, "StopLoss");
 				
                 LevelA = 0;
                 LevelB = 26;
@@ -297,84 +298,84 @@ namespace NinjaTrader.NinjaScript.Strategies
 				, (int) LevelDLine.Width);
 			#endregion
 			
-//			 keep the below code intact for use with a fixed stop, a break even stop and a profit trailing stop =================			
-//////////////////			switch (Position.MarketPosition)
-//////////////////            {
-//////////////////				// Resets the stop loss to the original value when all positions are closed
-//////////////////                case MarketPosition.Flat:
-//////////////////                    SetStopLoss(CalculationMode.Ticks, stopLossTicks);
-//////////////////					previousPrice = 0;
-//////////////////					stopPlot = 0;
-//////////////////                    break;
+			// keep the below code intact for use with a fixed stop, a break even stop and a profit trailing stop =================			
+			switch (Position.MarketPosition)
+            {
+				// Resets the stop loss to the original value when all positions are closed
+                case MarketPosition.Flat:
+                    SetStopLoss(CalculationMode.Ticks, stopLossTicks);
+					previousPrice = 0;
+					stopPlot = 0;
+                    break;
 					   
-//////////////////                case MarketPosition.Long:
+                case MarketPosition.Long:
 						
-//////////////////					if (previousPrice == 0)
-//////////////////					{
-//////////////////						stopPlot = Position.AveragePrice - stopLossTicks * TickSize;  // initial stop plot level
-//////////////////					}
+					if (previousPrice == 0)
+					{
+						stopPlot = Position.AveragePrice - stopLossTicks * TickSize;  // initial stop plot level
+					}
 					
-//////////////////                    // Once the price is greater than entry price+ breakEvenTicks ticks, set stop loss to plusBreakeven ticks
-//////////////////                    if (Close[0] > Position.AveragePrice + breakEvenTicks * TickSize  && previousPrice == 0)
-//////////////////                    {
-//////////////////						initialBreakEven = Position.AveragePrice + plusBreakEven * TickSize;
-//////////////////                        SetStopLoss(CalculationMode.Price, initialBreakEven);
-//////////////////						previousPrice = Position.AveragePrice;
-//////////////////						stopPlot = initialBreakEven;
-//////////////////                    }
-//////////////////					// Once at breakeven wait till trailProfitTrigger is reached before advancing stoploss by trailStepTicks size step
-//////////////////					else if (previousPrice	!= 0 ////StopLoss is at breakeven
-////////////////// 							&& GetCurrentAsk() > previousPrice + trailProfitTrigger * TickSize )
-//////////////////					{
-//////////////////						newPrice = previousPrice + trailStepTicks * TickSize; 	// Calculate trail stop adjustment
-//////////////////						SetStopLoss(CalculationMode.Price, newPrice);			// Readjust stoploss level		
-//////////////////						previousPrice = newPrice;				 				// save for price adjust on next candle
-//////////////////						stopPlot = newPrice; 					 				// save to adjust plot line
-//////////////////					}
+                    // Once the price is greater than entry price+ breakEvenTicks ticks, set stop loss to plusBreakeven ticks
+                    if (Close[0] > Position.AveragePrice + breakEvenTicks * TickSize  && previousPrice == 0)
+                    {
+						initialBreakEven = Position.AveragePrice + plusBreakEven * TickSize;
+                        SetStopLoss(CalculationMode.Price, initialBreakEven);
+						previousPrice = Position.AveragePrice;
+						stopPlot = initialBreakEven;
+                    }
+					// Once at breakeven wait till trailProfitTrigger is reached before advancing stoploss by trailStepTicks size step
+					else if (previousPrice	!= 0 //StopLoss is at breakeven
+ 							&& GetCurrentAsk() > previousPrice + trailProfitTrigger * TickSize )
+					{
+						newPrice = previousPrice + trailStepTicks * TickSize; 	// Calculate trail stop adjustment
+						SetStopLoss(CalculationMode.Price, newPrice);			// Readjust stoploss level		
+						previousPrice = newPrice;				 				// save for price adjust on next candle
+						stopPlot = newPrice; 					 				// save to adjust plot line
+					}
 					
-//////////////////					// Plot the profit/stop lines
-//////////////////					if (showLines)
-//////////////////					{
-//////////////////						ProfitTarget[0] = Position.AveragePrice + profitTargetTicks * TickSize;
-//////////////////						StopLoss[0] 	= stopPlot;
-//////////////////					}
-//////////////////                    break;
+					// Plot the profit/stop lines
+					if (showLines)
+					{
+						Values[0][0] = Position.AveragePrice + profitTargetTicks * TickSize;
+						Values[1][0] 	= stopPlot;
+					}
+                    break;
 					
-//////////////////                case MarketPosition.Short:
+                case MarketPosition.Short:
 					
-//////////////////					if (previousPrice == 0) 
-//////////////////					{
-//////////////////						stopPlot = Position.AveragePrice + stopLossTicks * TickSize;  // initial stop plot level
-//////////////////					}
+					if (previousPrice == 0) 
+					{
+						stopPlot = Position.AveragePrice + stopLossTicks * TickSize;  // initial stop plot level
+					}
 					
-//////////////////                    // Once the price is Less than entry price - breakEvenTicks ticks, set stop loss to breakeven
-//////////////////                    if (Close[0] < Position.AveragePrice - breakEvenTicks * TickSize && previousPrice == 0)
-//////////////////                    {
-//////////////////						initialBreakEven = Position.AveragePrice - plusBreakEven * TickSize;
-//////////////////                        SetStopLoss(CalculationMode.Price, initialBreakEven);
-//////////////////						previousPrice = Position.AveragePrice;
-//////////////////						stopPlot = initialBreakEven;
-//////////////////                    }
-//////////////////					// Once at breakeven wait till trailProfitTrigger is reached before advancing stoploss by trailStepTicks size step
-//////////////////					else if (previousPrice	!= 0 ////StopLoss is at breakeven
-////////////////// 							&& GetCurrentAsk() < previousPrice - trailProfitTrigger * TickSize )
-//////////////////					{
-//////////////////						newPrice = previousPrice - trailStepTicks * TickSize;
-//////////////////						SetStopLoss(CalculationMode.Price, newPrice);
-//////////////////						previousPrice = newPrice;
-//////////////////						stopPlot = newPrice;
-//////////////////					}
+                    // Once the price is Less than entry price - breakEvenTicks ticks, set stop loss to breakeven
+                    if (Close[0] < Position.AveragePrice - breakEvenTicks * TickSize && previousPrice == 0)
+                    {
+						initialBreakEven = Position.AveragePrice - plusBreakEven * TickSize;
+                        SetStopLoss(CalculationMode.Price, initialBreakEven);
+						previousPrice = Position.AveragePrice;
+						stopPlot = initialBreakEven;
+                    }
+					// Once at breakeven wait till trailProfitTrigger is reached before advancing stoploss by trailStepTicks size step
+					else if (previousPrice	!= 0 //StopLoss is at breakeven
+ 							&& GetCurrentBid() < previousPrice - trailProfitTrigger * TickSize )
+					{
+						newPrice = previousPrice - trailStepTicks * TickSize;
+						SetStopLoss(CalculationMode.Price, newPrice);
+						previousPrice = newPrice;
+						stopPlot = newPrice;
+					}
 					
-//////////////////					if (showLines)
-//////////////////					{
-//////////////////						ProfitTarget[0] = Position.AveragePrice - profitTargetTicks * TickSize;
-//////////////////						StopLoss[0] 	= stopPlot;
-//////////////////					}					
+					if (showLines)
+					{
+						Values[0][0] = Position.AveragePrice - profitTargetTicks * TickSize;
+						Values[1][0] 	= stopPlot;
+					}					
 
-//////////////////                    break;
-//////////////////                default:
-//////////////////                    break;
-//////////////////			}	
+                    break;
+                default:
+                    break;
+			}
 			
 //			Print("levelAValue Onbarupdate: " + Nearest4Levels(Close, 0, 26, 50, 77, new NinjaTrader.Gui.Stroke(Brushes.Green, DashStyleHelper.Dash, 2), new NinjaTrader.Gui.Stroke(Brushes.Green, DashStyleHelper.Dash, 2), new NinjaTrader.Gui.Stroke(Brushes.Green, DashStyleHelper.Dash, 2), new NinjaTrader.Gui.Stroke(Brushes.Green, DashStyleHelper.Dash, 2)).LevelAValue);
 //			Print("levelBValue Onbarupdate: " + Nearest4Levels(Close, 0, 26, 50, 77, new NinjaTrader.Gui.Stroke(Brushes.Green, DashStyleHelper.Dash, 2), new NinjaTrader.Gui.Stroke(Brushes.Green, DashStyleHelper.Dash, 2), new NinjaTrader.Gui.Stroke(Brushes.Green, DashStyleHelper.Dash, 2), new NinjaTrader.Gui.Stroke(Brushes.Green, DashStyleHelper.Dash, 2)).LevelBValue);
@@ -393,8 +394,8 @@ namespace NinjaTrader.NinjaScript.Strategies
 					Close[0] >= LevelBValue && Low[0] <= LevelBValue)
 				{
 					_lastBar = CurrentBar;
-					SetProfitTarget(CalculationMode.Ticks, 4);
-					SetTrailStop(CalculationMode.Ticks, trailingStopTicks);
+					SetProfitTarget(CalculationMode.Ticks, profitTargetTicks);
+					SetStopLoss(CalculationMode.Ticks, stopLossTicks);
 					EnterLong(1, "LevelB_Buy_After_LevelC_Drop");
 					canBuyAtLevelB = false; // Reset flag after trade
 					Print("Market Buy executed at LevelB (" + LevelBValue + ") after LevelC drop condition met");
@@ -406,8 +407,8 @@ namespace NinjaTrader.NinjaScript.Strategies
 					Close[0] <= LevelDValue && High[0] >= LevelDValue)
 				{
 					_lastBar = CurrentBar;
-					SetProfitTarget(CalculationMode.Ticks, 4);
-					SetTrailStop(CalculationMode.Ticks, trailingStopTicks);
+					SetProfitTarget(CalculationMode.Ticks, profitTargetTicks);
+					SetStopLoss(CalculationMode.Ticks, stopLossTicks);
 					EnterShort(1, "LevelD_Sell_After_LevelA_Rise");
 					canSellAtLevelD = false; // Reset flag after trade
 					Print("Market Sell executed at LevelD (" + LevelDValue + ") after LevelA rise condition met");
